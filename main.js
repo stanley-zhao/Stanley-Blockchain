@@ -1,57 +1,25 @@
-const SHA256 = require('crypto-js/sha256')
+const { Blockchain, Transaction } = require(`${__dirname}/blockchain.js`)
+const EC = require('elliptic').ec;
+const ec = new EC('secp256k1');
 
-class Block{
-    constructor(index, timestamp, data, previousHash = '') {
-        this.index = index;
-        this.timestamp = timestamp;
-        this.data = data;
-        this.previousHash = previousHash;
-        this.hash = this.calculateHash();
-    }
+const mykey = ec.keyFromPrivate('c7b7b797bf62a83dfd38559ef66a9122c4af7d7d82c5973d724273958f90ae67');
+const myWalletAddress = mykey.getPublic('hex');
 
-    calculateHash() {
-        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
-    }
-}
+let stanleyCoin = new Blockchain(4);
 
-class Blockchain{
-    constructor() {
-        this.chain = [this.createGenesisBlock()];
-    }
+const txl = new Transaction(myWalletAddress, 'public key goes there', 100);
+txl.signTransaction(mykey);
+stanleyCoin.addTransaction(txl);
 
-    createGenesisBlock() {
-        return new Block(0, "01/01/2025", "GenesisBlock", "0");
-    }
 
-    getLatestBlock() {
-        return this.chain[this.chain.length - 1];
-    }
 
-    addBlock(newBlock) {
-        newBlock.previousHash = this.getLatestBlock().hash;
-        newBlock.hash = newBlock.calculateHash();
-        this.chain.push(newBlock);
-    }
+// stanleyCoin.createTransaction(new Transaction('address1', 'address2', 100));
+// stanleyCoin.createTransaction(new Transaction('address2', 'address1', 50));
 
-    isChainValid() {
-        const genesisBlock = this.createGenesisBlock();
+// stanleyCoin.minePendingTransactions('xaviers-address');
 
-        if (JSON.stringify(this.chain[0]) !== JSON.stringify(genesisBlock)) {
-            return false;
-        }
+// console.log('\nBalance of xavier is ', stanleyCoin.getBalanceOfAddress('xaviers-address'));
 
-        for (let i = 1; i < this.chain.length; i++){
-            const currentBlock = this.chain[i];
-            const previousBlock = this.chain[i - 1];
+stanleyCoin.minePendingTransactions(myWalletAddress);
 
-            if (currentBlock.hash != currentBlock.calculateHash()) {
-                return false;
-            }
-
-            if (currentBlock.previousHash != previousBlock.hash) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
+console.log('\nBalance of xavier is ', stanleyCoin.getBalanceOfAddress(myWalletAddress));
