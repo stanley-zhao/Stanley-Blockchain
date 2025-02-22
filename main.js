@@ -55,12 +55,3 @@ class Blockchain{
         return true;
     }
 }
-
-let StanleyCoin = new Blockchain();
-StanleyCoin.addBlock(new Block(1, "1/02/2025", { amount: 4 }));
-StanleyCoin.addBlock(new Block(2, "11/02/2025", { amount: 10 }));
-
-console.log(`is this blockchain valid ${StanleyCoin.isChainValid()}`);
-
-StanleyCoin.chain[1].data = { amount: 100 };
-console.log(`is this blockchain valid ${StanleyCoin.isChainValid()}`);
